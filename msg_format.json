@@ -1,0 +1,30 @@
+{
+  "id": "1145344233713188874",
+  "type": 0,
+  "content": "913 - this icecream good",
+  "channel_id": "1124414874454339715",
+  "author": {
+    "id": "746383273621717104",
+    "username": "oc_ori",
+    "avatar": "95b9bdc7aa5784a2354e2ec5256ae736",
+    "discriminator": "0",
+    "public_flags": 128,
+    "flags": 128,
+    "banner": null,
+    "accent_color": null,
+    "global_name": "Carrot :3",
+    "avatar_decoration_data": null,
+    "banner_color": null
+  },
+  "attachments": [],
+  "embeds": [],
+  "mentions": [],
+  "mention_roles": [],
+  "pinned": false,
+  "mention_everyone": false,
+  "tts": false,
+  "timestamp": "2023-08-27T13:09:04.784000+00:00",
+  "edited_timestamp": null,
+  "flags": 0,
+  "components": []
+}
