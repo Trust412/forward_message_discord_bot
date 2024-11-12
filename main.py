@@ -16,7 +16,7 @@ load_dotenv()
 # Discord settings
 MONITOR_USER_TOKEN =os.getenv("MONITOR_USER_TOKEN")
 
-TARGET_USER_ID = 
+TARGET_USER_ID = 1234123412341243
 DISCORD_WS_URL = "wss://gateway.discord.gg/?v=6&encoding=json"
 
 if not os.path.exists('logs'):
@@ -120,11 +120,13 @@ async def on_message(ws):
                     author = event['d']['author']
                     content = event['d']['content']
                     # channel_type = event['d'].get('channel_type', None)
-                    sender = f"{author['global_name']} ({author['username']})"
+                    # sender = f"{author['global_name']} ({author['username']})"
+                    sender = f"{author['global_name']}"
 
                     message_text = ' '.join(content.split(' ')[1:])
 
-                    await send_message(sender, message_text)
+                    if message_text != "":
+                        await send_message(sender, message_text)
 
             elif op_code == 9:
                 logging.info(f"Invalid session. Starting a new session...")
