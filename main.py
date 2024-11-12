@@ -14,19 +14,13 @@ import os
 
 load_dotenv()
 # Discord settings
-source_token =os.getenv("MONITOR_USER_TOKEN")
-dest_token = os.getenv("DISCORD", "TARGET_USER_TOKEN")
-dest_user_id = os.getenv("DISCORD", "TARGET_USER_ID")
+MONITOR_USER_TOKEN =os.getenv("MONITOR_USER_TOKEN")
 
-discord_ws_url = "wss://gateway.discord.gg/?v=6&encoding=json"
-discord_api_url = "https://discord.com/api/v9"
-
+TARGET_USER_ID = 12341234123412341234
+DISCORD_WS_URL = "wss://gateway.discord.gg/?v=6&encoding=json"
 
 if not os.path.exists('logs'):
     os.makedirs('logs')
-
-# Generate filename with timestamp
-log_filename = f"logs/discord_log.txt"
 
 
 async def send_payload(ws, payload):
@@ -38,29 +32,41 @@ async def send_payload(ws, payload):
         data = json.dumps(payload)
     await ws.send(data)
 
-async def send_dm(message):
+async def send_message(sender, message):
     headers = {
-        "Authorization": dest_token,
+        "Authorization": MONITOR_USER_TOKEN,
         "Content-Type": "application/json"
     }
-    
+
+    # First create a DM channel with the recipient
+    print("0")
+    channel_data = {
+        "recipient_id": int(TARGET_USER_ID)  # Your second account's user ID
+    }
+    print(channel_data)
     async with aiohttp.ClientSession() as session:
-        channel_data = {
-            "recipient_id": dest_user_id
-        }
-        async with session.post(f"{discord_api_url}/users/@me/channels", headers=headers, json=channel_data) as response:
-            if response.status == 200:
-                dm_channel = await response.json()
-                channel_id = dm_channel['id']
-                
-                message_data = {
-                    "content": message
-                }
-                async with session.post(f"{discord_api_url}/channels/{channel_id}/messages", headers=headers, json=message_data) as msg_response:
-                    if msg_response.status == 200:
-                        logging.info("DM sent successfully: {message}")
-                    else:
-                        logging.error("Failed to send DM: {msg_response.status}")
+        # Get or create DM channel
+        async with session.post("https://discord.com/api/v10/users/@me/channels", 
+                              headers=headers, 
+                              json=channel_data) as response:
+            dm_channel = await response.json()
+            print("DM Channel Response:", dm_channel)  # This will show the full response
+            
+            dm_channel_id = dm_channel['id']
+            print("Channel ID:", dm_channel_id)
+
+            # Send the message
+            message_data = {
+                "content": f"`🔔 Message from {sender}`\n{message}"
+            }
+            print("Sending message with data:", message_data)
+
+            async with session.post(f"https://discord.com/api/v10/channels/{dm_channel_id}/messages",
+                                  headers=headers,
+                                  json=message_data) as response:
+                if response.status == 200:
+                    print("🎆✨🧨🎆✨🧨🎆✨🧨🎆✨🧨 DM sent successfully!")
+
 
 async def heartbeat(ws, interval, last_sequence):
     while True:
@@ -76,7 +82,7 @@ async def identify(ws):
     identify_payload = {
         "op": 2,
         "d": {
-            "token": source_token,
+            "token": MONITOR_USER_TOKEN,
             "properties": {
                 "$os": "windows",
                 "$browser": "chrome",
@@ -113,19 +119,12 @@ async def on_message(ws):
                     # Log all message details
                     author = event['d']['author']
                     content = event['d']['content']
-                    channel_type = event['d'].get('channel_type', None)
-                    
-                    logger.info("✨============Message Details============")
-                    logger.info("Author: %s (ID: %s)", author['username'], author['id'])
-                    logger.info("Content: %s", content)
-                    logger.info("Channel Type: %s", channel_type)
-                    logger.info("=======================================")
-                    # Process DM forwarding
-                    # if channel_type == 1:
-                    #     author_id = author['id']
-                    #     if author_id != dest_user_id and content:
-                    #         # logging.info(f"✨DM received: {content}")
-                    #         await send_dm(content)
+                    # channel_type = event['d'].get('channel_type', None)
+                    sender = f"{author['global_name']} ({author['username']})"
+
+                    message_text = ' '.join(content.split(' ')[1:])
+
+                    await send_message(sender, message_text)
 
             elif op_code == 9:
                 logging.info(f"Invalid session. Starting a new session...")
@@ -142,7 +141,7 @@ async def main():
 
     while True:
         try:
-            async with websockets.connect(discord_ws_url, ssl=ssl_context) as ws:
+            async with websockets.connect(DISCORD_WS_URL, ssl=ssl_context) as ws:
                 await identify(ws)
                 await on_message(ws)
         except websockets.exceptions.ConnectionClosed as e:
