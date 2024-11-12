@@ -16,7 +16,7 @@ load_dotenv()
 # Discord settings
 MONITOR_USER_TOKEN =os.getenv("MONITOR_USER_TOKEN")
 
-TARGET_USER_ID = 12341234123412341234
+TARGET_USER_ID = 
 DISCORD_WS_URL = "wss://gateway.discord.gg/?v=6&encoding=json"
 
 if not os.path.exists('logs'):
@@ -57,7 +57,7 @@ async def send_message(sender, message):
 
             # Send the message
             message_data = {
-                "content": f"`🔔 Message from {sender}`\n{message}"
+                "content": f"`🔔 Message from {sender}`{message}"
             }
             print("Sending message with data:", message_data)
 
