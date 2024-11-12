@@ -14,9 +14,9 @@ import os
 
 load_dotenv()
 # Discord settings
-source_token =os.getenv("SOURCE_TOKEN")
-dest_token = os.getenv("DISCORD", "DEST_TOKEN")
-dest_user_id = os.getenv("DISCORD", "DEST_USER_ID")
+source_token =os.getenv("MONITOR_USER_TOKEN")
+dest_token = os.getenv("DISCORD", "TARGET_USER_TOKEN")
+dest_user_id = os.getenv("DISCORD", "TARGET_USER_ID")
 
 discord_ws_url = "wss://gateway.discord.gg/?v=6&encoding=json"
 discord_api_url = "https://discord.com/api/v9"
@@ -115,13 +115,17 @@ async def on_message(ws):
                     content = event['d']['content']
                     channel_type = event['d'].get('channel_type', None)
                     
-
+                    logger.info("✨============Message Details============")
+                    logger.info("Author: %s (ID: %s)", author['username'], author['id'])
+                    logger.info("Content: %s", content)
+                    logger.info("Channel Type: %s", channel_type)
+                    logger.info("=======================================")
                     # Process DM forwarding
-                    if channel_type == 1:
-                        author_id = author['id']
-                        if author_id != dest_user_id and content:
-                            # logging.info(f"✨DM received: {content}")
-                            await send_dm(content)
+                    # if channel_type == 1:
+                    #     author_id = author['id']
+                    #     if author_id != dest_user_id and content:
+                    #         # logging.info(f"✨DM received: {content}")
+                    #         await send_dm(content)
 
             elif op_code == 9:
                 logging.info(f"Invalid session. Starting a new session...")
