@@ -56,4 +56,4 @@ python main.py
 
 ## Contact
 
-- [Telegram](https://t.me/@rannieturla)
+- [Telegram](https://t.me/rannieturla)
